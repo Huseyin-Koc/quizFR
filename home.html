@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz d'Amour pour Şeyma</title>
+    <style>
+        body {
+            background: linear-gradient(45deg, #ffe6e6, #ffd1d1);
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            padding: 50px;
+            min-height: 100vh;
+            margin: 0;
+            position: relative;
+            overflow: hidden;
+        }
+        .heart {
+            position: absolute;
+            animation: floatHeart 6s infinite;
+            opacity: 0.6;
+            font-size: 24px;
+        }
+        @keyframes floatHeart {
+            0% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-100px) rotate(180deg); }
+            100% { transform: translateY(-200px) rotate(360deg); opacity: 0; }
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 40px;
+            border-radius: 25px;
+            box-shadow: 0 0 30px rgba(255, 105, 180, 0.2);
+            border: 2px solid rgba(255, 192, 203, 0.3);
+            backdrop-filter: blur(5px);
+            animation: fadeIn 1.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        h1 {
+            color: #ff4d4d;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            font-size: 2.5em;
+        }
+        .start-button {
+            background: linear-gradient(45deg, #ff4d4d, #ff66b2);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 20px;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(255, 105, 180, 0.3);
+        }
+        .start-button:hover {
+            transform: scale(1.05) translateY(-3px);
+            box-shadow: 0 8px 20px rgba(255, 105, 180, 0.4);
+        }
+        .love-message {
+            font-style: italic;
+            color: #ff66b2;
+            margin: 25px 0;
+            font-size: 1.2em;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+        }
+        .heart-border {
+            display: inline-block;
+            padding: 20px;
+            border: 2px solid #ffc0cb;
+            border-radius: 15px;
+            margin: 10px 0;
+        }
+        /* Mevcut stiller kalacak, yenilerini ekliyoruz */
+        .quiz-container {
+            display: none;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            background: linear-gradient(45deg, #ffd1dc, #ffb6c1);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+            padding-left: 30px;
+        }
+        .option-button:hover {
+            transform: scale(1.02);
+            background: linear-gradient(45deg, #ffb6c1, #ffd1dc);
+        }
+        .option-button.correct {
+            background: linear-gradient(45deg, #90EE90, #98FB98);
+            color: darkgreen;
+            transform: scale(1.02);
+        }
+        .option-button.wrong {
+            background: linear-gradient(45deg, #FFB6C1, #FF69B4);
+            color: darkred;
+        }
+        .hint-button {
+            background: #ff66b2;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            margin: 10px;
+            cursor: pointer;
+        }
+        .score {
+            color: #ff4d4d;
+            font-size: 1.2em;
+            margin: 10px 0;
+        }
+        .difficulty {
+            font-size: 0.9em;
+            color: #ff66b2;
+            margin-bottom: 10px;
+        }
+        #question {
+            color: #ff4d4d;
+            font-size: 1.3em;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        /* Yeni stiller */
+        .final-container {
+            animation: fadeInScale 1.5s ease-out;
+            padding: 30px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,192,203,0.9));
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(255,105,180,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .final-score {
+            font-size: 3em;
+            color: #ff4d4d;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            animation: scoreCount 2s ease-out;
+        }
+
+        .final-message {
+            font-size: 1.5em;
+            color: #ff66b2;
+            margin: 20px 0;
+            animation: slideUp 1s ease-out 0.5s both;
+        }
+
+        .floating-hearts {
+            position: absolute;
+            animation: floatUpHeart 3s ease-in infinite;
+            opacity: 0;
+        }
+
+        @keyframes fadeInScale {
+            0% { 
+                opacity: 0; 
+                transform: scale(0.8);
+            }
+            50% {
+                opacity: 0.5;
+                transform: scale(1.1);
+            }
+            100% { 
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes scoreCount {
+            0% { transform: scale(0.5); opacity: 0; }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { 
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to { 
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes floatUpHeart {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0;
+            }
+            50% {
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(-100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .love-btn {
+            background: linear-gradient(45deg, #ff4d4d, #ff66b2);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: all 0.3s;
+            animation: pulseBtn 2s infinite;
+            margin-top: 20px;
+        }
+
+        @keyframes pulseBtn {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>❤️ Bonjour Mon Locimitom ❤️</h1>
+        <div class="heart-border">
+            <p class="love-message">Askum Şeyma için, küçük bir quiz</p>
+            <p style="color: #ff66b2;">Hazır mısın balkaymağım? Lets COO!</p>
+        </div>
+        <button class="start-button" onclick="startQuiz()">💝 Başla 💝</button>
+    </div>
+    <div class="quiz-container" id="quizContainer">
+        <h2 id="question"></h2>
+        <div id="options"></div>
+        <button class="hint-button" onclick="showHint()">💝 İpucu 💝</button>
+        <p class="score">Puan: <span id="score">0</span></p>
+    </div>
+    <script>
+        // Uçuşan kalpler oluşturma
+        function createHearts() {
+            const body = document.querySelector('body');
+            setInterval(() => {
+                const heart = document.createElement('div');
+                heart.innerHTML = '❤️';
+                heart.classList.add('heart');
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.animationDuration = Math.random() * 3 + 3 + 's';
+                body.appendChild(heart);
+                setTimeout(() => heart.remove(), 6000);
+            }, 300);
+        }
+
+        createHearts();
+
+        let questions = [
+            // KOLAY SORULAR (6)
+            {
+                question: "Bonjour ne demek?",
+                options: ["Merhaba", "Hoşçakal", "Nasılsın", "İyi günler"],
+                correct: "Merhaba",
+                hint: "Günün başında söylenen ilk kelime 💝",
+                difficulty: "Kolay"
+            },
+            {
+                question: "Fransızca 4-5-6 nasıl söylenir?",
+                options: ["un-deux-trois", "quatre-cinq-six", "sept-huit-neuf", "dix-onze-douze"],
+                correct: "quatre-cinq-six",
+                hint: "Ortadan başla tatlım 💫",
+                difficulty: "Kolay"
+            },
+            {
+                question: "Au revoir ne demek?",
+                options: ["Hoşçakal", "Merhaba", "Teşekkürler", "Rica ederim"],
+                correct: "Hoşçakal",
+                hint: "Ayrılırken söylenen kelime 👋",
+                difficulty: "Kolay"
+            },
+            {
+                question: "Je suis ne demek?",
+                options: ["Ben varım", "Sen varsın", "O var", "Biz varız"],
+                correct: "Ben varım",
+                hint: "Kendinden bahsederken kullanırsın 😊",
+                difficulty: "Kolay"
+            },
+            {
+                question: "Qui ne demek?",
+                options: ["Kim", "Ne", "Nerede", "Nasıl"],
+                correct: "Kim",
+                hint: "Birini sorduğunda kullanırsın 🤔",
+                difficulty: "Kolay"
+            },
+            {
+                question: "Comment ça va ne demek?",
+                options: ["Nasılsın", "Nerelisin", "Kaç yaşındasın", "Neredesin"],
+                correct: "Nasılsın",
+                hint: "Hal hatır sorma cümlesi 💕",
+                difficulty: "Kolay"
+            },
+
+            // ORTA SORULAR (10)
+            {
+                question: "'Je t'aime beaucoup' cümlesindeki 'beaucoup' ne anlama gelir?",
+                options: ["Çok", "Az", "Biraz", "Asla"],
+                correct: "Çok",
+                hint: "En yoğun duyguyu ifade eder ❤️",
+                difficulty: "Orta"
+            },
+            {
+                question: "Il faut + infinitif ne anlama gelir?",
+                options: ["Gerekli olmak", "İstemek", "Sevmek", "Bilmek"],
+                correct: "Gerekli olmak",
+                hint: "Bir şeyin yapılması gerektiğini söylerken... 📝",
+                difficulty: "Orta"
+            },
+            {
+                question: "'Jamais' kelimesi hangi anlamda kullanılır?",
+                options: ["Asla", "Bazen", "Her zaman", "Şimdi"],
+                correct: "Asla",
+                hint: "Olumsuzluk bildiren bir kelime ❌",
+                difficulty: "Orta"
+            },
+            {
+                question: "Très kelimesinin ortak anlamı olan hangisi?",
+                options: ["Jamais", "Beaucoup", "Moint", "Un peu"],
+                correct: "Çok",
+                hint: "Defterinde yazıyor xD ✨",
+                difficulty: "Orta"
+            },
+            {
+                question: "Comment kelimesi tek başına ne anlama gelir?",
+                options: ["Nasıl", "Ne zaman", "Nerede", "Neden"],
+                correct: "Nasıl",
+                hint: "Bir şeyin yapılış şeklini sorarken... 🤔",
+                difficulty: "Orta"
+            },
+            {
+                question: "Hangisi Fransaya komşu ülke değildir?",
+                options: ["Lüksemburg", "Belçika", "Andorra", "Hollanda"],
+                correct: "Hollanda",
+                hint: "Turuncu tayfa 👤",
+                difficulty: "Orta"
+            },
+            {
+                question: "'Quelle heure est-il?' ne demektir?",
+                options: ["Saat kaç?", "Hangi gün?", "Ne zaman?", "Kaç yaşında?"],
+                correct: "Saat kaç?",
+                hint: "Zamanı öğrenmek için sorulan soru ⌚",
+                difficulty: "Orta"
+            },
+            {
+                question: "'Pourquoi' soru kelimesi ne anlama gelir?",
+                options: ["Neden", "Nasıl", "Ne zaman", "Nerede"],
+                correct: "Neden",
+                hint: "Bir şeyin sebebini sorarken... 🤷‍♀️",
+                difficulty: "Orta"
+            },
+            {
+                question: "'Elle' zamiri kimi temsil eder?",
+                options: ["O (kadın)", "O (erkek)", "Ben", "Sen"],
+                correct: "O (kadın)",
+                hint: "Dişil tekil şahıs zamiri 👩",
+                difficulty: "Orta"
+            },
+            {
+                question: "'Je m'appelle' ifadesi hangi durumda kullanılır?",
+                options: ["İsim söylerken", "Yaş söylerken", "Adres söylerken", "Meslek söylerken"],
+                correct: "İsim söylerken",
+                hint: "Kendini tanıtırken... 📛",
+                difficulty: "Orta"
+            },
+
+            // ZOR SORULAR (4)
+            {
+                question: "Askunu sevdiğini nasıl ifade edersin?",
+                options: ["Trois", "Quatre", "Huit", "Cinq"],
+                correct: "Cinq",
+                hint: "'* kadar seviyorum' ⏳",
+                difficulty: "Zor"
+            },
+            {
+                question: "Fransızca sayı sistemi kaçtan sonra farklılaşmaya başlar?",
+                options: ["60", "70", "80", "90"],
+                correct: "70",
+                hint: "Soixante'dan sonra... 🔢",
+                difficulty: "Zor"
+            },
+            {
+                question: "'Tu as quel âge?' cümlesinin doğru cevabı hangisidir?",
+                options: ["J'ai _ ans", "Je suis _ ans", "Mon âge est _", "_ ans moi"],
+                correct: "J'ai _ ans",
+                hint: "Avoir fiili ile yaş söyleme 🎂",
+                difficulty: "Zor"
+            },
+            {
+                question: "Hangisi bir Fransa Şehri değildir?",
+                options: ["Nice", "Bordeaux", "Dijon", "Saint-Klorize"],
+                correct: "Saint-Klorize",
+                hint: "Allah kurtarsın 🤔",
+                difficulty: "Zor"
+            }
+        ];
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // Soruları karıştır
+        questions = shuffleArray(questions);
+
+        // Şıkları düzenle ve karıştır
+        questions = questions.map(q => {
+            // Doğru cevabı kaydet
+            const correct = q.correct;
+            
+            // Şıkları karıştır
+            let shuffledOptions = shuffleArray([...q.options]);
+            
+            // Doğru cevabın yeni indexini bul
+            const correctIndex = shuffledOptions.indexOf(correct);
+            
+            // Şıkları A, B, C, D formatına çevir
+            const letters = ['A) ', 'B) ', 'C) ', 'D) '];
+            shuffledOptions = shuffledOptions.map((opt, idx) => letters[idx] + opt);
+            
+            return {
+                ...q,
+                options: shuffledOptions,
+                correct: letters[correctIndex] + correct
+            };
+        });
+
+        let currentQuestion = 0;
+        let score = 0;
+
+        function startQuiz() {
+            document.querySelector('.container').style.display = 'none';
+            document.querySelector('.quiz-container').style.display = 'block';
+            showQuestion();
+        }
+
+        // checkAnswer fonksiyonunu güncelleyelim
+        function checkAnswer(selected, button) {
+            const correct = questions[currentQuestion].correct;
+            const buttons = document.querySelectorAll('.option-button');
+            
+            buttons.forEach(btn => {
+                btn.disabled = true;
+                if(btn.textContent === correct) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            if(selected === correct) {
+                score += 5;
+                document.getElementById('score').textContent = score;
+                button.classList.add('correct');
+            } else {
+                button.classList.add('wrong');
+            }
+
+            setTimeout(() => {
+                currentQuestion++;
+                showQuestion();
+            }, 2000);
+        }
+
+        // showQuestion fonksiyonunu güncelle
+        function showQuestion() {
+            if (currentQuestion >= questions.length) {
+                showFinalScore();
+                return;
+            }
+
+            const questionData = questions[currentQuestion];
+            document.getElementById('question').textContent = `Soru ${currentQuestion + 1}/20: ${questionData.question}`;
+            
+            const optionsContainer = document.getElementById('options');
+            optionsContainer.innerHTML = `
+                <div class="difficulty">Zorluk: ${questionData.difficulty}</div>
+            `;
+            
+            questionData.options.forEach(option => {
+                const button = document.createElement('button');
+                button.className = 'option-button';
+                button.textContent = option;
+                button.onclick = function() {
+                    checkAnswer(option, this);
+                };
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        function showHint() {
+            alert('İpucu: ' + questions[currentQuestion].hint);
+        }
+
+        function showFinalScore() {
+            // Kalp pozisyonları için array
+            const heartPositions = Array.from({length: 15}, (_, i) => ({
+                left: Math.random() * 100 + '%',
+                delay: Math.random() * 3 + 's'
+            }));
+
+            let messageBasedOnScore = '';
+            if (score >= 90) {
+                messageBasedOnScore = "Sen bir Fransız aşk meleğisin! 👼";
+            } else if (score >= 70) {
+                messageBasedOnScore = "Aşkım, çok iyisin! 🌟";
+            } else if (score >= 50) {
+                messageBasedOnScore = "Tatlım, güzel gidiyorsun! 💫";
+            } else {
+                messageBasedOnScore = "Birlikte daha çok çalışacağız! 💝";
+            }
+
+            document.getElementById('quizContainer').innerHTML = `
+                <div class="final-container">
+                    <h2 style="animation: slideUp 1s ease-out;">Quiz Bitti! 🎉</h2>
+                    
+                    <div class="final-score">
+                        ${score}<span style="font-size: 0.5em;">/100</span>
+                    </div>
+                    
+                    <div class="final-message">
+                        ${messageBasedOnScore}
+                    </div>
+                    
+                    <p class="love-message" style="animation: slideUp 1s ease-out 1s both;">
+                        Mon amour, je t'aime beaucoup! 💝
+                    </p>
+
+                    ${heartPositions.map(pos => `
+                        <div class="floating-hearts" style="left: ${pos.left}; animation-delay: ${pos.delay};">
+                            ❤️
+                        </div>
+                    `).join('')}
+                    
+                    <button class="love-btn" onclick="restartQuiz()">
+                        Yeniden Başla 💕
+                    </button>
+                </div>
+            `;
+
+            // Konfeti efekti
+            createConfetti();
+        }
+
+        // Konfeti efekti için yeni fonksiyon
+        function createConfetti() {
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.style.cssText = `
+                    position: fixed;
+                    left: ${Math.random() * 100}vw;
+                    top: -20px;
+                    width: 10px;
+                    height: 10px;
+                    background: ${['#ff4d4d', '#ff66b2', '#ffd1dc', '#ffb6c1'][Math.floor(Math.random() * 4)]};
+                    transform: rotate(${Math.random() * 360}deg);
+                    animation: confettiFall ${Math.random() * 3 + 2}s linear forwards;
+                `;
+                document.body.appendChild(confetti);
+                setTimeout(() => confetti.remove(), 5000);
+            }
+        }
+
+        // Yeniden başlatma fonksiyonu
+        function restartQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            questions = shuffleArray(questions);
+            document.getElementById('score').textContent = '0';
+            showQuestion();
+        }
+    </script>
+</body>
+</html>
